@@ -63,6 +63,7 @@ public class RconClient {
         }
     }
 
+    //todo: update to boolean like below
     public void sendCommand(String command) {
 
         if (rcon != null) {
