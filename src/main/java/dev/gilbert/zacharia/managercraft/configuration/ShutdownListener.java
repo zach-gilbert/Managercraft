@@ -1,4 +1,4 @@
-package dev.gilbert.zacharia.managercraft;
+package dev.gilbert.zacharia.managercraft.configuration;
 
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.MinecraftServerManager;
 import org.springframework.beans.factory.annotation.Autowired;

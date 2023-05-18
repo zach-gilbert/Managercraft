@@ -4,6 +4,7 @@ import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.ConsoleRe
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon.RconHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -17,20 +18,16 @@ public class MinecraftServerManager {
 
     private final RconHandler rconHandler;
     private final ConsoleReaderService consoleReaderService;
+    private final String serverDirectory;
+    private Process process;
 
     @Autowired
     public MinecraftServerManager(RconHandler rconHandler,
-                                  ConsoleReaderService consoleReaderService) {
+                                  ConsoleReaderService consoleReaderService,
+                                  @Value("${minecraft.servers.directory}") String serverDirectory) {
         this.rconHandler = rconHandler;
         this.consoleReaderService = consoleReaderService;
-    }
-
-    private final String SERVER_DIRECTORY = "C:/Users/Zach/Desktop/servers";
-
-    private Process process;
-
-    public Process getProcess() {
-        return process;
+        this.serverDirectory = serverDirectory;
     }
 
     /* TODO:
@@ -42,7 +39,7 @@ public class MinecraftServerManager {
     public void startServer() {
         //todo: add logic to check if it is already started, if so send stop request, then start it again.
 
-        File jarFile = new File(SERVER_DIRECTORY + "/Academy/forge-1.16.5-36.2.34.jar");
+        File jarFile = new File(serverDirectory + "/Academy/forge-1.16.5-36.2.34.jar");//todo add logic to find .jar to execute, and also let user decide
 
         List<String> command = getCommandArgs();
         log.info("Starting Minecraft Server with arguments: {}", command);
@@ -80,7 +77,7 @@ public class MinecraftServerManager {
         rconHandler.tearDown();
     }
 
-    // TODO: Better define this, prob shouldn't be a method
+    // TODO: Better define this
     private List<String> getCommandArgs() {
         List<String> command = new ArrayList<>();
         command.add("C:\\Users\\Zach\\Desktop\\servers\\Academy\\jre\\jdk8u312-b07-jre\\bin\\java.exe");//todo improve this from a properties file
@@ -91,7 +88,7 @@ public class MinecraftServerManager {
         command.add("-Xmx6144M");
         command.add("-Xms4096M");
         command.add("-jar");
-        command.add("forge-1.16.5-36.2.34.jar");//todo: investigate if this can be removed
+        command.add("forge-1.16.5-36.2.34.jar");
         command.add("nogui");
 
         return command;
