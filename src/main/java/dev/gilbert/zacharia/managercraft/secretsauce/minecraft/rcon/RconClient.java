@@ -1,8 +1,10 @@
 package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon;
 
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.PropertyService;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerPropertyKeys;
 import lombok.extern.slf4j.Slf4j;
 import nl.vv32.rcon.Rcon;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -17,24 +19,24 @@ public class RconClient {
 
     //todo: finish javadocs
 
-    private final String host;
-    private final int port;
-    private final String password;
     private Rcon rcon;
 
-    public RconClient(@Value("${minecraft.rcon.host}") String host,
-                      @Value("${minecraft.rcon.port}") int port,
-                      @Value("${minecraft.rcon.password}") String password) {
-        this.host = host;
-        this.port = port;
-        this.password = password;
+    private final PropertyService propertyService;
+
+    @Autowired
+    public RconClient(PropertyService propertyService) {
+        this.propertyService = propertyService;
     }
 
     public void initialize() {
-        try {
-            rcon = Rcon.open(this.host, this.port);
+        String host = "0.0.0.0";
+        String port = propertyService.getProperty(ServerPropertyKeys.RCON_PORT);
+        String password = propertyService.getProperty(ServerPropertyKeys.RCON_PASSWORD);
 
-            if (rcon.authenticate(this.password)) {
+        try {
+            rcon = Rcon.open(host, Integer.parseInt(port));
+
+            if (rcon.authenticate(password)) {
                 log.info("Rcon Client Authenticated Successfully");
             }
 

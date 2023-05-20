@@ -48,7 +48,7 @@ public class RconHandler {
         boolean success = false;
 
         if (rconClient != null) {
-            rconClient.sendCommand(RconCommand.SAVE_ALL.getCommand());
+            rconClient.sendCommand(RconCommand.SAVE_ALL);
 
             ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
 
@@ -92,12 +92,12 @@ public class RconHandler {
         boolean success;
 
 
-        success = rconClient.sendCommand(RconCommand.SAY.getCommand(), message);
+        success = rconClient.sendCommand(RconCommand.SAY, message);
 
         if (success) {
             response = "Message successfully sent";
         } else {
-            response = "Error: Could not send command: " + RconCommand.SAY.getCommand();
+            response = "Error: Could not send command: " + RconCommand.SAY;
         }
 
         genericResponseMessage.setMessage(response);

@@ -2,6 +2,8 @@ package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console;
 
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.events.RconRunningEvent;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.events.SaveAllEvent;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.PropertyService;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerPropertyKeys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +25,7 @@ public class ConsoleReaderService {
 
     private final ApplicationEventPublisher eventPublisher;
     private final TaskExecutor taskExecutor;
+    private final PropertyService propertyService;
 
     /**
      * Autowire constructor for the ConsoleReaderService.
@@ -32,9 +35,11 @@ public class ConsoleReaderService {
      */
     @Autowired
     public ConsoleReaderService(ApplicationEventPublisher eventPublisher,
-                                @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor) {
+                                @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor,
+                                PropertyService propertyService) {
         this.eventPublisher = eventPublisher;
         this.taskExecutor = taskExecutor;
+        this.propertyService = propertyService;
     }
 
     /**
@@ -53,13 +58,14 @@ public class ConsoleReaderService {
                 while ((consoleLine = reader.readLine()) != null) {
                     log.info(consoleLine);
 
-                    if (consoleLine.contains(MinecraftThreads.MAIN_THREAD.getThreadName())
-                            && consoleLine.contains("RCON running on 0.0.0.0:25575")) {
+                    String rconPort = propertyService.getProperty(
+                            ServerPropertyKeys.RCON_PORT);
+
+                    if (consoleLine.contains("RCON running on 0.0.0.0:" + rconPort)) {
                         eventPublisher.publishEvent(new RconRunningEvent(consoleLine));
                     }
 
-                    if (consoleLine.contains(MinecraftThreads.DEDICATED_SERVER.getThreadName())
-                            && consoleLine.contains("[Rcon: Saved the game]")) {
+                    if (consoleLine.contains("[Rcon: Saved the game]")) {
                         eventPublisher.publishEvent(new SaveAllEvent(consoleLine));
                     }
                 }

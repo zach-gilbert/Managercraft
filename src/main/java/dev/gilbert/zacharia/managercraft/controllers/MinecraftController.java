@@ -1,13 +1,16 @@
 package dev.gilbert.zacharia.managercraft.controllers;
 
+import dev.gilbert.zacharia.managercraft.models.requests.MinecraftStartServerRequest;
 import dev.gilbert.zacharia.managercraft.models.responses.GenericResponseMessage;
-import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.MinecraftServerManager;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerManager;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon.RconCommand;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon.RconHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,13 +24,13 @@ public class MinecraftController {
     private static final String START_SERVER = "Start Server";
     private static final String STOP_SERVER = "Stop Server";
 
-    private final MinecraftServerManager minecraftServerManager;
+    private final ServerManager serverManager;
     private final RconHandler rconHandler;
 
     @Autowired
-    public MinecraftController(MinecraftServerManager minecraftServerManager,
+    public MinecraftController(ServerManager serverManager,
                                RconHandler rconHandler) {
-        this.minecraftServerManager = minecraftServerManager;
+        this.serverManager = serverManager;
         this.rconHandler = rconHandler;
     }
 
@@ -37,22 +40,19 @@ public class MinecraftController {
         - Change some things to POST
     */
 
-    @GetMapping("/startServer")
-    private ResponseEntity<GenericResponseMessage> startServer() {
-        GenericResponseMessage genericResponseMessage = new GenericResponseMessage();
+    @PostMapping("/startServer")
+    private ResponseEntity<GenericResponseMessage> startServer(@RequestBody MinecraftStartServerRequest request) {
+        GenericResponseMessage genericResponseMessage;
 
         log.info("Received a '{}' request", START_SERVER);
 
+        genericResponseMessage = serverManager.startServer(request);
         genericResponseMessage.setCommand(START_SERVER);
-        genericResponseMessage.setSuccess(true);
-        genericResponseMessage.setMessage("testing");
-
-        minecraftServerManager.startServer();
 
         return ResponseEntity.ok(genericResponseMessage);
     }
 
-    @GetMapping("/stopServer")
+    @PostMapping("/stopServer")
     private ResponseEntity<GenericResponseMessage> stopServer() {
         GenericResponseMessage genericResponseMessage = new GenericResponseMessage();
 
@@ -62,27 +62,27 @@ public class MinecraftController {
         genericResponseMessage.setSuccess(true);
         genericResponseMessage.setMessage("testing");
 
-        minecraftServerManager.stopServer();
+        serverManager.stopServer();
 
         return ResponseEntity.ok(genericResponseMessage);
     }
 
-    @GetMapping("/saveAll")
+    @PostMapping("/saveAll")
     private ResponseEntity<GenericResponseMessage> saveAll() {
-        log.info("Received a '{}' request", RconCommand.SAVE_ALL.getCommand());
+        log.info("Received a '{}' request", RconCommand.SAVE_ALL);
 
         GenericResponseMessage genericResponseMessage = rconHandler.saveAll();
-        genericResponseMessage.setCommand(RconCommand.SAVE_ALL.getCommand());
+        genericResponseMessage.setCommand(RconCommand.SAVE_ALL);
 
         return ResponseEntity.ok(genericResponseMessage);
     }
 
     @GetMapping("/say")
     private ResponseEntity<GenericResponseMessage> say(@RequestParam("message") String message) {
-        log.info("Received a '{}' request", RconCommand.SAY.getCommand());
+        log.info("Received a '{}' request", RconCommand.SAY);
 
         GenericResponseMessage genericResponseMessage = rconHandler.say(message);
-        genericResponseMessage.setCommand(RconCommand.SAY.getCommand());
+        genericResponseMessage.setCommand(RconCommand.SAY);
 
         return ResponseEntity.ok(genericResponseMessage);
     }
