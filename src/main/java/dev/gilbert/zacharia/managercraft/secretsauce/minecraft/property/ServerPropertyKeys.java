@@ -1,4 +1,4 @@
-package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server;
+package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property;
 
 public class ServerPropertyKeys {
 

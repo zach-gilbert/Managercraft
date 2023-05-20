@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+/**
+ * Entry point of the Spring Boot application
+ */
 @SpringBootApplication
 @EnableAsync
 public class ManagercraftApplication {

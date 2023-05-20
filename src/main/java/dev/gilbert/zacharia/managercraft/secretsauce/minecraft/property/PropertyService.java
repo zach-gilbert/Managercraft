@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-//todo: javadoc code
+//todo: javadoc code, add log statements
 
 /**
  * Service to retrieve and set properties within a file

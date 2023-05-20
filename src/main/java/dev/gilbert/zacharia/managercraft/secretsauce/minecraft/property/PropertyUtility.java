@@ -1,7 +1,6 @@
 package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property;
 
 import dev.gilbert.zacharia.managercraft.models.requests.MinecraftStartServerRequest;
-import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerPropertyKeys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

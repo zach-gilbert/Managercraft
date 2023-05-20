@@ -1,7 +1,7 @@
 package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon;
 
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.PropertyService;
-import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerPropertyKeys;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.ServerPropertyKeys;
 import lombok.extern.slf4j.Slf4j;
 import nl.vv32.rcon.Rcon;
 import org.springframework.beans.factory.annotation.Autowired;

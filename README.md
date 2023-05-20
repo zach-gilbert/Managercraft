@@ -12,3 +12,4 @@ A Minecraft Server Manager
 todo:
 - requires java home defined with ~java 17 as most vanilla MC servers require it
 - add examples of POST requests
+- explain process of starting and stopping a server, end to end

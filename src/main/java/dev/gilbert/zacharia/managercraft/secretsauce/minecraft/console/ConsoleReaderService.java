@@ -3,7 +3,7 @@ package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.events.RconRunningEvent;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.events.SaveAllEvent;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.PropertyService;
-import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerPropertyKeys;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.ServerPropertyKeys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
