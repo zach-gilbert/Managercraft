@@ -20,25 +20,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/minecraft")
 public class MinecraftController {
 
-    //TODO, replace with enum
+    /**
+     * REST commands
+     */
     private static final String START_SERVER = "Start Server";
     private static final String STOP_SERVER = "Stop Server";
 
     private final ServerProcessManager serverProcessManager;
     private final RconHandler rconHandler;
 
+    /**
+     * Constructors a new MinecraftController with autowired dependencies
+     *
+     * @param serverProcessManager the server process manager
+     * @param rconHandler          the RCON handler
+     */
     @Autowired
     public MinecraftController(ServerProcessManager serverProcessManager,
                                RconHandler rconHandler) {
         this.serverProcessManager = serverProcessManager;
         this.rconHandler = rconHandler;
     }
-
-    /* TODO:
-        - Improve GenericResponseMessages
-            - Test by failing some operations
-        - Change some things to POST
-    */
 
     @PostMapping("/startServer")
     private ResponseEntity<GenericResponseMessage> startServer(@RequestBody MinecraftStartServerRequest request) {
@@ -54,15 +56,12 @@ public class MinecraftController {
 
     @PostMapping("/stopServer")
     private ResponseEntity<GenericResponseMessage> stopServer() {
-        GenericResponseMessage genericResponseMessage = new GenericResponseMessage();
+        GenericResponseMessage genericResponseMessage;
 
         log.info("Received a '{}' request", STOP_SERVER);
 
+        genericResponseMessage = serverProcessManager.stopServer();
         genericResponseMessage.setCommand(STOP_SERVER);
-        genericResponseMessage.setSuccess(true);
-        genericResponseMessage.setMessage("testing");
-
-        serverProcessManager.stopServer();
 
         return ResponseEntity.ok(genericResponseMessage);
     }

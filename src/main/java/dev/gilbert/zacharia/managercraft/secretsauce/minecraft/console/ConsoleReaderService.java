@@ -4,6 +4,8 @@ import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.events.Rc
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.events.SaveAllEvent;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.PropertyService;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerPropertyKeys;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.websocket.WebSocketSender;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.websocket.WebSocketTopics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +28,7 @@ public class ConsoleReaderService {
     private final ApplicationEventPublisher eventPublisher;
     private final TaskExecutor taskExecutor;
     private final PropertyService propertyService;
+    private final WebSocketSender webSocketSender;
 
     /**
      * Autowire constructor for the ConsoleReaderService.
@@ -36,10 +39,12 @@ public class ConsoleReaderService {
     @Autowired
     public ConsoleReaderService(ApplicationEventPublisher eventPublisher,
                                 @Qualifier("applicationTaskExecutor") TaskExecutor taskExecutor,
-                                PropertyService propertyService) {
+                                PropertyService propertyService,
+                                WebSocketSender webSocketSender) {
         this.eventPublisher = eventPublisher;
         this.taskExecutor = taskExecutor;
         this.propertyService = propertyService;
+        this.webSocketSender = webSocketSender;
     }
 
     /**
@@ -57,6 +62,9 @@ public class ConsoleReaderService {
                 String consoleLine;
                 while ((consoleLine = reader.readLine()) != null) {
                     log.info(consoleLine);
+
+                    // Stream consoleLine to the UI over WebSocket
+                    webSocketSender.sendConsoleMessage(WebSocketTopics.SERVER_CONSOLE, consoleLine);
 
                     String rconPort = propertyService.getProperty(
                             ServerPropertyKeys.RCON_PORT);

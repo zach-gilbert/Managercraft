@@ -1,10 +1,13 @@
 package dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server;
 
+import dev.gilbert.zacharia.managercraft.exceptions.ServerStartException;
 import dev.gilbert.zacharia.managercraft.models.requests.MinecraftStartServerRequest;
 import dev.gilbert.zacharia.managercraft.models.responses.GenericResponseMessage;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.console.ConsoleReaderService;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.property.PropertyUtility;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon.RconHandler;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.websocket.WebSocketSender;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.websocket.WebSocketTopics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,6 +37,7 @@ public class ServerProcessManager {
     private final ConsoleReaderService consoleReaderService;
     private final PropertyUtility propertyUtility;
     private final ServerFileManager serverFileManager;
+    private final WebSocketSender webSocketSender;
 
     private MinecraftStartServerRequest request;
     private final String rootServersDir;
@@ -56,12 +60,14 @@ public class ServerProcessManager {
                                 ConsoleReaderService consoleReaderService,
                                 PropertyUtility propertyUtility,
                                 @Value("${minecraft.servers.directory}") String rootServersDir,
-                                ServerFileManager serverFileManager) {
+                                ServerFileManager serverFileManager,
+                                WebSocketSender webSocketSender) {
         this.rconHandler = rconHandler;
         this.consoleReaderService = consoleReaderService;
         this.propertyUtility = propertyUtility;
         this.rootServersDir = rootServersDir;
         this.serverFileManager = serverFileManager;
+        this.webSocketSender = webSocketSender;
     }
 
     public GenericResponseMessage startServer(MinecraftStartServerRequest request) {
@@ -99,6 +105,8 @@ public class ServerProcessManager {
             genericResponseMessage.setSuccess(true);
             genericResponseMessage.setMessage(request.getServer() + " server successfully started");
 
+            webSocketSender.sendConsoleMessage(WebSocketTopics.MANAGERCRAFT_CONSOLE, "Starting server");//todo remove?
+
             // Start the timer to restart server if auto-restart is requested
             if (request.isAutoRestart()) {
                 restartFuture = scheduler.schedule(this::restartServer, request.getAutoRestartInterval(), TimeUnit.HOURS);
@@ -109,14 +117,16 @@ public class ServerProcessManager {
             log.error("Exception trying to start Minecraft Server: ", e);
             genericResponseMessage.setSuccess(false);
             genericResponseMessage.setMessage("Unable to start " + request.getServer());
-            throw new RuntimeException(e);// TODO: throw ServerStartException
+
+            throw new ServerStartException("Error Starting Server", e);
         }
 
         return genericResponseMessage;
     }
 
     // todo: Change to return a generic response message
-    public void stopServer() {
+    public GenericResponseMessage stopServer() {
+        GenericResponseMessage genericResponseMessage = new GenericResponseMessage();
         log.info("Attempting to Stop Minecraft Server");
 
         if (process != null && process.isAlive()) {
@@ -124,10 +134,17 @@ public class ServerProcessManager {
             log.info("Stopping Minecraft Server");
             process.destroy();
             process = null;
+
+            genericResponseMessage.setSuccess(true);
+            genericResponseMessage.setMessage("Server successfully stopped");
+
+            webSocketSender.sendConsoleMessage(WebSocketTopics.MANAGERCRAFT_CONSOLE, "Server stopped");//todo remove?
         }
 
         else {
             log.warn("Minecraft Server already stopped");
+            genericResponseMessage.setSuccess(true);
+            genericResponseMessage.setMessage("Server already stopped");
         }
 
         rconHandler.tearDown();
@@ -137,6 +154,8 @@ public class ServerProcessManager {
             restartFuture.cancel(false);
             restartFuture = null;
         }
+
+        return genericResponseMessage;
     }
 
     private void restartServer() {
@@ -154,102 +173,5 @@ public class ServerProcessManager {
         process = processBuilder.start();
         consoleReaderService.readConsole(process);
     }
-
-//    private List<String> getLaunchServerArgs(MinecraftStartServerRequest request, String launchJarName) {
-//        List<String> customArgs = new ArrayList<>();
-//
-//        // If a no path to JRE is provided, use JAVA HOME
-//        if (request.getJavaRuntimeEnv() == null ||
-//                request.getJavaRuntimeEnv().isEmpty()) {
-//
-//            Path javaHome = Paths.get(System.getProperty("java.home"));
-//            Path javaExecutable = javaHome.resolve("bin").resolve("java.exe");
-//
-//            customArgs.add(javaExecutable.toString());
-//        }
-//        // Else if a JRE is provided, use it
-//        else {
-//            Path javaExecutablePath = Paths.get(request.getJavaRuntimeEnv()).resolve("bin/java.exe");
-//            customArgs.add(javaExecutablePath.toString());
-//        }
-//
-//        // Setting arguments
-//        customArgs.add("-server");
-//        customArgs.add("-XX:+UseG1GC");
-//        customArgs.add("-XX:+UnlockExperimentalVMOptions"); //todo: figure out if this may cause issues
-//        customArgs.add("-Xmx" + request.getMaximumMemory() + "M"); // -Xmx1024M
-//        customArgs.add("-Xms" + request.getMinimumMemory() + "M"); // -Xms1024M
-//        customArgs.add("-jar");
-//        customArgs.add(launchJarName); // Server launch jar
-//        customArgs.add("nogui");
-//
-//        if (request.getAdditionalServerArgs() != null &&
-//                !request.getAdditionalServerArgs().isEmpty()) {
-//            // Incorporate additional args into the options
-//            customArgs.addAll(request.getAdditionalServerArgs());
-//        }
-//
-//        return customArgs;
-//    }
-
-//    private List<String> findAllJarsInDirectory(String rootServersDir, String server) {
-//        List<String> jarsInDirectory = new ArrayList<>();
-//
-//        Path serverPath = Paths.get(rootServersDir, server);
-//        File serverDir = serverPath.toFile();
-//
-//        // Get list of files within the directory
-//        File[] files = serverDir.listFiles();
-//
-//        // Guard clause
-//        if (files == null) {
-//            log.error("Error reading directory: " + serverPath);
-//            return jarsInDirectory;
-//        }
-//
-//        // Iterate through list of files for jars
-//        for (File file : files) {
-//            if (file.isFile() && file.getName().endsWith(".jar")) {
-//                jarsInDirectory.add(file.getName());
-//            }
-//        }
-//
-//        return jarsInDirectory;
-//    }
-//
-//    private String findServerLaunchJarName(String rootServersDir, String server) {
-//        List<String> jarsInDirectory = findAllJarsInDirectory(rootServersDir, server);
-//
-//        // Guard clause
-//        if (jarsInDirectory.isEmpty()) {
-//            log.error("Error identifying launch jar");
-//            return "";
-//        }
-//
-//        // Iterate and search for a forge jar, in case someone is using a modpack
-//        for (String jar : jarsInDirectory) {
-//            if (jar.contains("forge")) {
-//                return jar;
-//            }
-//        }
-//
-//        // Assuming no jar containing forge is found, return default for vanilla
-//        return jarsInDirectory.get(0);
-//    }
-//
-//    private String getLaunchJarName(MinecraftStartServerRequest request) {
-//        String launchJarName; // Retrieve the launch jar for the specific server directory
-//
-//        // If no launch jar is provided, automatically retrieve it
-//        if (request.getLaunchJarName() == null || request.getLaunchJarName().isEmpty()) {
-//            launchJarName = findServerLaunchJarName(rootServersDir, request.getServer());
-//        }
-//        // Else, use the provided launch jar
-//        else {
-//            launchJarName = request.getLaunchJarName();
-//        }
-//
-//        return launchJarName;
-//    }
 
 }
