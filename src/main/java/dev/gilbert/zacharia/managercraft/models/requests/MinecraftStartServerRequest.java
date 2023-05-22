@@ -59,4 +59,18 @@ public class MinecraftStartServerRequest extends DataToObject {
     @JsonProperty("additional_server_args")
     private List<String> additionalServerArgs;
 
+    /**
+     * Automatically restarts the server at provided internal
+     * Optional, by default true
+     */
+    @JsonProperty("auto_restart")
+    private boolean autoRestart = true;
+
+    /**
+     * Interval to restart the server
+     * Optional, default 12 HOURS
+     */
+    @JsonProperty("auto_restart_interval")
+    private int autoRestartInterval = 12;
+
 }

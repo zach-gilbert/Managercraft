@@ -124,7 +124,7 @@
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>dev.gilbert.zacharia.managercraft.ManagercraftApplication</mainClass> <!-- Specify your main class -->
+                                    <mainClass>dev.gilbert.zacharia.managercraft.ManagercraftApplication</mainClass>
                                 </manifest>
                             </archive>
                         </configuration>

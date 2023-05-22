@@ -2,7 +2,7 @@ package dev.gilbert.zacharia.managercraft.controllers;
 
 import dev.gilbert.zacharia.managercraft.models.requests.MinecraftStartServerRequest;
 import dev.gilbert.zacharia.managercraft.models.responses.GenericResponseMessage;
-import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerManager;
+import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.server.ServerProcessManager;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon.RconCommand;
 import dev.gilbert.zacharia.managercraft.secretsauce.minecraft.rcon.RconHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +24,13 @@ public class MinecraftController {
     private static final String START_SERVER = "Start Server";
     private static final String STOP_SERVER = "Stop Server";
 
-    private final ServerManager serverManager;
+    private final ServerProcessManager serverProcessManager;
     private final RconHandler rconHandler;
 
     @Autowired
-    public MinecraftController(ServerManager serverManager,
+    public MinecraftController(ServerProcessManager serverProcessManager,
                                RconHandler rconHandler) {
-        this.serverManager = serverManager;
+        this.serverProcessManager = serverProcessManager;
         this.rconHandler = rconHandler;
     }
 
@@ -46,7 +46,7 @@ public class MinecraftController {
 
         log.info("Received a '{}' request", START_SERVER);
 
-        genericResponseMessage = serverManager.startServer(request);
+        genericResponseMessage = serverProcessManager.startServer(request);
         genericResponseMessage.setCommand(START_SERVER);
 
         return ResponseEntity.ok(genericResponseMessage);
@@ -62,7 +62,7 @@ public class MinecraftController {
         genericResponseMessage.setSuccess(true);
         genericResponseMessage.setMessage("testing");
 
-        serverManager.stopServer();
+        serverProcessManager.stopServer();
 
         return ResponseEntity.ok(genericResponseMessage);
     }
