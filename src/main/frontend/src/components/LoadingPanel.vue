@@ -1,5 +1,9 @@
 <template>
-  <v-dialog v-model="store.isLoading" fullscreen persistent>
+  <v-dialog
+    v-model="store.isLoading"
+    :fullscreen="true"
+    :persistent="true"
+  >
     <v-card class="d-flex align-center justify-center background-card">
       <div class="text-center, loading-text">
         <h1>Loading App</h1>

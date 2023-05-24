@@ -2,14 +2,14 @@
   <v-app>
     <v-main>
       <LoadingPanel />
-      <ServerConsole />
+      <Dashboard />
     </v-main>
   </v-app>
 </template>
 
 <script setup>
   import LoadingPanel from '@/components/LoadingPanel';
-  import ServerConsole from '@/components/ServerConsole';
+  import Dashboard from '@/views/Dashboard';
   import { onMounted } from 'vue';
   import { connectWebSocket } from '@/api/websocket.js';
 

@@ -1,17 +1,14 @@
 <template>
-  <div>
-    <v-textarea
-      ref="consoleTextArea"
-      :label="serverLabel"
-      :model-value="consoleLines"
-      readonly
-      class="console"
-    ></v-textarea>
-  </div>
+  <textarea
+    ref="consoleTextArea"
+    class="console"
+    :value="consoleLines"
+    readonly
+  ></textarea>
 </template>
 
 <script>
-import { useServerStore } from "@/store/serverstore"
+import { useServerStore } from "@/store/serverstore";
 
 export default {
   name: "ServerConsole",
@@ -35,22 +32,15 @@ export default {
   methods: {
     scrollToBottom() {
       this.$nextTick(() => {
-        const textAreaComponent = this.$refs.consoleTextArea
-        if (textAreaComponent) {
-          const textAreaElement = textAreaComponent.$el.querySelector('.console textarea');
-          if (textAreaElement) {
-            textAreaElement.scrollTop = textAreaElement.scrollHeight
-          }
+        const textAreaElement  = this.$refs.consoleTextArea
+        if (textAreaElement ) {
+          textAreaElement .scrollTop = textAreaElement .scrollHeight
         }
       })
     }
   },
 
   computed: {
-    serverLabel() {
-      return this.store.serverName + " Console"
-    },
-
     consoleLines() {
       return this.store && this.store.consoleLines ? this.store.consoleLines.join("\n") : ''
     }
@@ -59,8 +49,33 @@ export default {
 </script>
 
 <style scoped>
-.console textarea {
-  overflow-y: auto !important;
+.console {
+  background-color: black;
+  overflow-y: auto;
   scroll-behavior: smooth;
+  min-height: 50%;
+  width: 100%;
+  border: none;
+  resize: none;
+  color: white;
+  border-radius: 15px;
+  padding: 5px;
+  cursor: default;
+}
+
+.console::-webkit-scrollbar {
+  width: 15px;
+}
+
+.console::-webkit-scrollbar-track {
+  background: #202020;
+  border-left: 1px solid #2c2c2c;
+}
+
+.console::-webkit-scrollbar-thumb {
+  background: #3e3e3e;
+  border: solid 3px #202020;
+  border-radius: 7px;
+  height: 50%;
 }
 </style>
