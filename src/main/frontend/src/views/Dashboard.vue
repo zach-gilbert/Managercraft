@@ -1,10 +1,23 @@
-<!-- Recreate this to use separate views, not sure all of this in dashboard is advisable. Likely will need to recreate some of this -->
+<script>
+import ServerConsole from "@/components/ServerConsole";
+import StatusGumball from "@/components/StatusGumball.vue";
+
+export default {
+  name: "Dashboard",
+  components: {
+    StatusGumball,
+    ServerConsole
+  }
+}
+</script>
+
 <template>
   <v-app id="inspire">
     <v-system-bar class="system-bar">
       <span>Managercraft</span>
       <v-spacer></v-spacer>
-      <span>test</span> <!-- TODO server ip copy/paste -->
+<!--      <span>test</span> &lt;!&ndash; TODO server ip copy/paste &ndash;&gt;-->
+      <status-gumball/>
     </v-system-bar>
 
     <v-navigation-drawer
@@ -39,7 +52,7 @@
 
     <v-main>
       <!-- TODO: add server start/stop buttons -->
-      <ServerConsole />
+      <server-console/>
     </v-main>
 
     <v-navigation-drawer location="right">
@@ -58,6 +71,7 @@
       app
       height="72"
     >
+      <!-- TODO: extract this into its own file -->
       <v-text-field
         bg-color="grey-lighten-1"
         class="rounded-pill overflow-hidden"
@@ -68,17 +82,6 @@
     </v-footer>
   </v-app>
 </template>
-
-<script>
-import ServerConsole from "@/components/ServerConsole";
-
-export default {
-  name: "Dashboard",
-  components: {
-    ServerConsole
-  }
-}
-</script>
 
 <style scoped>
 .system-bar {
